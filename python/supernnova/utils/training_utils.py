@@ -559,6 +559,11 @@ def eval_step_swag(model: SwagModel, scale: float, cov: bool, packed_tensor):
     # draw a sample of SwagModel
     sample_model = model.sample(scale, cov)
 
+    # Move sampled weights to the same device as the base model to avoid
+    # device mismatch when running on GPU (e.g. deepcopy lands on CPU)
+    device = next(model.module.parameters()).device
+    sample_model = sample_model.to(device)
+
     # Set NN to eval mode
     sample_model.eval()
 
@@ -566,7 +571,7 @@ def eval_step_swag(model: SwagModel, scale: float, cov: bool, packed_tensor):
     output = sample_model(packed_tensor)
 
     # for debug only
-    if torch.isnan(sample_model(packed_tensor)).any():
+    if torch.isnan(output).any():
         print("sample_model output contains NAN value")
         breakpoint()
 
