@@ -105,6 +105,8 @@ def get_batch_predictions_SWAG(model: SwagModel, X, target, scale: float, cov=Tr
     """
 
     sample_model = model.sample(scale, cov)
+    device = next(model.module.parameters()).device
+    sample_model = sample_model.to(device)
     out = sample_model.forward(X)
     arr_preds = nn.functional.softmax(out, dim=-1).data.cpu().numpy()
     arr_target = target.detach().cpu().numpy()

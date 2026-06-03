@@ -53,8 +53,9 @@ def get_predictions(settings, dict_rnn, X, target, OOD=None):
 
                 list_out = []
                 # Loop over num samples to obtain predictions
+                device = next(rnn.module.parameters()).device
                 for i in range(settings.num_inference_samples):
-                    sample_model = rnn.sample()
+                    sample_model = rnn.sample().to(device)
                     list_out.append(sample_model(X_slice.expand(new_size)))
                 out = torch.cat(list_out, dim=0)
                 # Apply softmax to obtain a proba
